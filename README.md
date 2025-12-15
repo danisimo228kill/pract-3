@@ -39,4 +39,4 @@
 
 ### Базовое использование:
 ```bash
-python assembler.py input.asm output.bin
+python assembler.py program.asm program.bin --test
