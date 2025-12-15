@@ -12,21 +12,18 @@ def parse_instruction(line):
     line = line.strip()
     if not line or line.startswith('#'): return None
     if '#' in line: line = line.split('#')[0].strip()
-
     parts = line.split()
     mnemonic = parts[0].upper()
 
     if mnemonic == 'LOAD':
         if len(parts) != 2: raise ValueError("LOAD требует один аргумент")
         const = int(parts[1])
-
         if const < 0 or const >= (1 << 15): raise ValueError("Константа вне диапазона")
         return {'op': OPCODES['LOAD'], 'B': const}
 
     elif mnemonic == 'READ':
         if len(parts) != 2: raise ValueError("READ требует один аргумент")
         addr = int(parts[1])
-
         if addr < 0 or addr >= (1 << 32): raise ValueError("Адрес вне диапазона")
         return {'op': OPCODES['READ'], 'B': addr}
 
@@ -157,8 +154,7 @@ def main():
     print(f"\n2. Размер двоичного файла: {len(binary)} байт")
 
     if args.test:
-        print("\n3. Результат ассемблирования на экран в байтовом формате,")
-        print("   как в тесте из спецификации УВМ:\n")
+        print("\n3. Вывод езультата ассемблирования на экран в байтовом формате,")
 
         hex_bytes = []
         for b in binary:
@@ -169,7 +165,7 @@ def main():
 
         expected = bytes([0xCD, 0x3D, 0x00, 0x4E, 0x1D, 0x00, 0x00, 0x00, 0x00, 0x87])
 
-    # Сохранение файла
+
     with open(output_path, 'wb') as f:
         f.write(binary)
 
