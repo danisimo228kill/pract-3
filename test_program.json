@@ -1,0 +1,16 @@
+[
+  {
+    "mnemonic": "LOAD",
+    "operand": 988
+  },
+  {
+    "mnemonic": "READ",
+    "operand": 468
+  },
+  {
+    "mnemonic": "WRITE"
+  },
+  {
+    "mnemonic": "ROR"
+  }
+]
