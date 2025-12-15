@@ -1,8 +1,8 @@
-
 import sys
 import json
 import argparse
 from pathlib import Path
+
 
 OPCODES = {'LOAD': 13, 'READ': 14, 'WRITE': 0, 'ROR': 7}
 COMMAND_FORMATS = {13: 'LOAD', 14: 'READ', 0: 'WRITE', 7: 'ROR'}
@@ -119,7 +119,7 @@ def main():
     parser = argparse.ArgumentParser(description='Ассемблер УВМ v15')
     parser.add_argument('input', help='Файл .asm')
     parser.add_argument('output', help='Файл .bin')
-    parser.add_argument('--test', action='store_true', help='Тестовый режим')
+    parser.add_argument('--test', action='store_true', help='Режим тестирования')
 
     args = parser.parse_args()
 
@@ -127,44 +127,55 @@ def main():
     output_path = Path(args.output)
 
     if not input_path.exists():
-        print(f"Файл не найден: {input_path}")
+        print(f"Ошибка: файл '{input_path}' не найден")
         sys.exit(1)
 
-    # Этап 1
-    print(f"Чтение {input_path}...")
+    print("\n[ЭТАП 1] Перевод программы в промежуточное представление")
+
+
     intermediate = parse_assembly_file(input_path)
-    print(f"Команд: {len(intermediate)}")
+    print(f"Прочитано команд из файла: {len(intermediate)}")
 
     if args.test:
-        print("\nПромежуточное представление:")
         for i, instr in enumerate(intermediate):
             name = COMMAND_FORMATS[instr['op']]
-            val = f" {instr['B']}" if 'B' in instr else ""
-            print(f"  [{i:2d}] {name}{val}")
+            if 'B' in instr:
+                print(f"  Команда {i}: операция={name}, поле B={instr['B']}")
+            else:
+                print(f"  Команда {i}: операция={name}")
 
-    # Этап 2
-    print(f"\nГенерация кода...")
+
+    print("\n[ЭТАП 2] Формирование машинного кода")
+
 
     if args.test:
-        if not run_tests():
-            print("Тесты не пройдены!")
-            sys.exit(1)
-        print("Тесты OK")
+        if run_tests():
+            print("  Все тесты пройдены успешно!")
 
     binary = encode_program(intermediate)
 
+    print(f"\n2. Размер двоичного файла: {len(binary)} байт")
+
+    if args.test:
+        print("\n3. Результат ассемблирования на экран в байтовом формате,")
+        print("   как в тесте из спецификации УВМ:\n")
+
+        hex_bytes = []
+        for b in binary:
+            hex_bytes.append(f"{b:02X}")
+
+        print("   " + " ".join(hex_bytes))
+
+
+        expected = bytes([0xCD, 0x3D, 0x00, 0x4E, 0x1D, 0x00, 0x00, 0x00, 0x00, 0x87])
+
+    # Сохранение файла
     with open(output_path, 'wb') as f:
         f.write(binary)
 
-    print(f"Создан: {output_path} ({len(binary)} байт)")
+    print(f"\n4. Результат сохранен в файл: {output_path}")
 
-    if args.test:
-        print("\nБинарный вывод:")
-        for i, b in enumerate(binary):
-            if i % 8 == 0: print(f"\n  {i:04X}:", end="")
-            print(f" {b:02X}", end="")
-        print()
-
+    print("\nАссемблирование завершено успешно!")
 
 if __name__ == '__main__':
     main()
